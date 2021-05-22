@@ -1,0 +1,13 @@
+{
+  "id": "tablist",
+  "name": "tablist",
+  "version": "0.0.1",
+  "description": "Tablist Plugin for velocity",
+  "url": "https://software.oskarsmc.com/",
+  "authors": [
+    "OskarsMC",
+    "OskarZyg"
+  ],
+  "dependencies": [],
+  "main": "com.oskarsmc.tablist.TabList"
+}
