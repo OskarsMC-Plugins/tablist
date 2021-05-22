@@ -16,8 +16,16 @@ public class GlobalTabList {
 
     public GlobalTabList(TabList plugin, ProxyServer proxyServer) {
         this.proxyServer = proxyServer;
+    }
 
-        this.proxyServer.getScheduler().buildTask(plugin, GlobalTabList.this::update).repeat(50, TimeUnit.MILLISECONDS).schedule();
+    @Subscribe
+    public void connect(ServerConnectedEvent event) {
+        update();
+    }
+
+    @Subscribe
+    public void disconnect(DisconnectEvent event) {
+        update();
     }
 
     public void update() {
