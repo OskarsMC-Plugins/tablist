@@ -30,6 +30,7 @@ public class GlobalTabList {
                                     .latency(((int) player1.getPing()))
                                     .profile(player1.getGameProfile())
                                     .gameMode(0) // Impossible to get player game mode from proxy, always assume survival
+                                    .tabList(player.getTabList())
                                     .build()
                     );
                 }
