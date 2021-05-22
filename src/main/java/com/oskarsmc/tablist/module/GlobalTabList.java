@@ -22,6 +22,9 @@ public class GlobalTabList {
 
     public void update() {
         for (Player player : this.proxyServer.getAllPlayers()) {
+            for (TabListEntry entry : player.getTabList().getEntries()) {
+                player.getTabList().removeEntry(entry.getProfile().getId());
+            }
             for (Player player1 : this.proxyServer.getAllPlayers()) {
                 if (!player.getTabList().containsEntry(player1.getUniqueId())) {
                     player.getTabList().addEntry(
