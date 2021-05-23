@@ -9,6 +9,8 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.player.TabListEntry;
 import net.kyori.adventure.text.Component;
 
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class GlobalTabList {
@@ -30,20 +32,27 @@ public class GlobalTabList {
 
     public void update() {
         for (Player player : this.proxyServer.getAllPlayers()) {
-            for (TabListEntry entry : player.getTabList().getEntries()) {
-                player.getTabList().removeEntry(entry.getProfile().getId());
-            }
             for (Player player1 : this.proxyServer.getAllPlayers()) {
                 if (!player.getTabList().containsEntry(player1.getUniqueId())) {
                     player.getTabList().addEntry(
                             TabListEntry.builder()
                                     .displayName(Component.text(player1.getUsername()))
-                                    .latency(((int) player1.getPing()))
                                     .profile(player1.getGameProfile())
                                     .gameMode(0) // Impossible to get player game mode from proxy, always assume survival
                                     .tabList(player.getTabList())
                                     .build()
                     );
+                }
+            }
+
+            for (TabListEntry entry : player.getTabList().getEntries()) {
+                UUID uuid = entry.getProfile().getId();
+                Optional<Player> playerOptional = proxyServer.getPlayer(uuid);
+                if (playerOptional.isPresent()) {
+                    // Update ping
+                    entry.setLatency((int) (player.getPing() * 1000));
+                } else {
+                    player.getTabList().removeEntry(uuid);
                 }
             }
         }
