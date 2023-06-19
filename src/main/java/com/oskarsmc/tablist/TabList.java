@@ -1,22 +1,25 @@
 package com.oskarsmc.tablist;
 
 import com.google.inject.Inject;
+import com.oskarsmc.tablist.commands.TablistReload;
 import com.oskarsmc.tablist.configuration.TabSettings;
+import com.oskarsmc.tablist.listener.EventListener;
 import com.oskarsmc.tablist.module.GlobalTabList;
 import com.oskarsmc.tablist.module.TabListHeaderFooter;
-import com.oskarsmc.tablist.util.StatsUtils;
+import com.oskarsmc.tablist.namemanager.DefaultDisplayName;
+import com.oskarsmc.tablist.namemanager.DisplayName;
+import com.oskarsmc.tablist.namemanager.LuckPermsDisplayName;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
-import org.bstats.charts.AdvancedPie;
+import lombok.Getter;
 import org.bstats.velocity.Metrics;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Callable;
+import java.util.Optional;
 
 public class TabList {
 
@@ -33,15 +36,31 @@ public class TabList {
     @Inject
     private Metrics.Factory metricsFactory;
 
+
+    public void updateSettings() {
+        this.tabSettings = new TabSettings(dataDirectory.toFile(), logger);
+    }
+
     private TabSettings tabSettings;
 
+    @Getter
     private GlobalTabList globalTabList;
+
+    @Getter
     private TabListHeaderFooter tabListHeaderFooter;
+
+    @Getter
+    private static TabList instance;
+
+    @Getter
+    private DisplayName displayNameManager = new DefaultDisplayName();
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        this.tabSettings = new TabSettings(dataDirectory.toFile(), logger);
-        Metrics metrics = metricsFactory.make(this, StatsUtils.PLUGIN_ID);
+        instance = this;
+
+        updateSettings();
+        /*Metrics metrics = metricsFactory.make(this, StatsUtils.PLUGIN_ID);
         metrics.addCustomChart(new AdvancedPie("modules_enabled", new Callable<Map<String, Integer>>() {
             @Override
             public Map<String, Integer> call() {
@@ -58,7 +77,7 @@ public class TabList {
                     return 0;
                 }
             }
-        }));
+        }));*/
 
         if (this.tabSettings.isEnabled()) {
             if (this.tabSettings.getToml().getBoolean("global-tablist.enabled")) {
@@ -72,6 +91,19 @@ public class TabList {
                 this.proxyServer.getEventManager().register(this, this.tabListHeaderFooter);
                 logger.info("Loaded Header & Footer");
             }
+
+            // Register listener
+            proxyServer.getEventManager().register(this, new EventListener());
+
+            // Hook into LuckPerms
+            Optional<PluginContainer> luckPerms = proxyServer.getPluginManager().getPlugin("luckperms");
+            if (luckPerms.isPresent()) {
+                displayNameManager = new LuckPermsDisplayName();
+                logger.info("Hooked into LuckPerms");
+            }
+
+            // Register reload command
+            proxyServer.getCommandManager().register("tablistreload",new TablistReload());
         }
     }
 }

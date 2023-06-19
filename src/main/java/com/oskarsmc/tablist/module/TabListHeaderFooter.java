@@ -4,10 +4,10 @@ import com.oskarsmc.tablist.TabList;
 import com.oskarsmc.tablist.configuration.TabSettings;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public class TabListHeaderFooter {
@@ -16,17 +16,26 @@ public class TabListHeaderFooter {
     private ProxyServer proxyServer;
 
     public TabListHeaderFooter(TabList plugin, ProxyServer proxyServer, TabSettings tabSettings) {
-        this.header = MiniMessage.get().parse(tabSettings.getToml().getString("tablist-header-footer.header"));
-        this.footer = MiniMessage.get().parse(tabSettings.getToml().getString("tablist-header-footer.footer"));
+        this.header = MineDown.parse(tabSettings.getToml().getString("tablist-header-footer.header"));
+        this.footer = MineDown.parse(tabSettings.getToml().getString("tablist-header-footer.footer"));
 
         this.proxyServer = proxyServer;
 
-        this.proxyServer.getScheduler().buildTask(plugin, TabListHeaderFooter.this::update).repeat(50, TimeUnit.MILLISECONDS).schedule();
+        this.proxyServer.getScheduler().buildTask(plugin, () -> {
+            TabList.getInstance().getGlobalTabList().update();
+            update();
+        }).repeat(tabSettings.getToml().getLong("tablist-header-footer.update_ms",1000l), TimeUnit.MILLISECONDS).schedule();
+    }
+
+    public void updatePlayer(Player player) {
+        player.getTabList().setHeaderAndFooter(header, footer);
     }
 
     public void update() {
-        for (Player player : this.proxyServer.getAllPlayers()) {
-            player.getTabList().setHeaderAndFooter(header, footer);
-        }
+        CompletableFuture.runAsync(() -> {
+            for (Player player : this.proxyServer.getAllPlayers()) {
+                updatePlayer(player);
+            }
+        });
     }
 }
