@@ -18,3 +18,11 @@
 
 [developer-info]
     config-version=0.1
+
+[join-message]
+    use = true
+    format = "#displayname# &ejoined"
+
+[leave-message]
+    use = true
+    format = "#displayname# &eleft"

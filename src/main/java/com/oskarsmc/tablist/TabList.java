@@ -60,24 +60,6 @@ public class TabList {
         instance = this;
 
         updateSettings();
-        /*Metrics metrics = metricsFactory.make(this, StatsUtils.PLUGIN_ID);
-        metrics.addCustomChart(new AdvancedPie("modules_enabled", new Callable<Map<String, Integer>>() {
-            @Override
-            public Map<String, Integer> call() {
-                Map<String, Integer> valueMap = new HashMap<>();
-                valueMap.put("Global Tablist", getEnabled("global-tablist.enabled"));
-                valueMap.put("Tablist Header & Footer", getEnabled("tablist-header-footer.enabled"));
-                return valueMap;
-            }
-
-            public int getEnabled(String module) {
-                if (tabSettings.getToml().getBoolean(module)) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            }
-        }));*/
 
         if (this.tabSettings.isEnabled()) {
             if (this.tabSettings.getToml().getBoolean("global-tablist.enabled")) {
@@ -93,7 +75,7 @@ public class TabList {
             }
 
             // Register listener
-            proxyServer.getEventManager().register(this, new EventListener());
+            proxyServer.getEventManager().register(this, new EventListener(proxyServer,tabSettings));
 
             // Hook into LuckPerms
             Optional<PluginContainer> luckPerms = proxyServer.getPluginManager().getPlugin("luckperms");

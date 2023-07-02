@@ -2,18 +2,12 @@ package com.oskarsmc.tablist.module;
 
 import com.oskarsmc.tablist.TabList;
 import com.oskarsmc.tablist.namemanager.DisplayName;
-import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.connection.DisconnectEvent;
-import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.player.TabListEntry;
 import net.kyori.adventure.text.Component;
 
-import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 public class GlobalTabList {
     private ProxyServer proxyServer;
@@ -32,7 +26,7 @@ public class GlobalTabList {
                     .profile(player.getGameProfile())
                     .gameMode(0) // Impossible to get player game mode from proxy, always assume survival
                     .tabList(player.getTabList())
-                    .latency((int)(player.getPing()*1000))
+                    .latency((int)player.getPing())
                     .build());
 
         }
