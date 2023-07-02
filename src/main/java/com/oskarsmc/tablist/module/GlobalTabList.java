@@ -1,17 +1,13 @@
 package com.oskarsmc.tablist.module;
 
 import com.oskarsmc.tablist.TabList;
-import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.connection.DisconnectEvent;
-import com.velocitypowered.api.event.player.ServerConnectedEvent;
+import com.oskarsmc.tablist.namemanager.DisplayName;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.player.TabListEntry;
 import net.kyori.adventure.text.Component;
 
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
 
 public class GlobalTabList {
     private ProxyServer proxyServer;
@@ -20,41 +16,33 @@ public class GlobalTabList {
         this.proxyServer = proxyServer;
     }
 
-    @Subscribe
-    public void connect(ServerConnectedEvent event) {
-        update();
+    public void updatePlayer(Player player) {
+        for(Player onlinePlayer : this.proxyServer.getAllPlayers()) {
+            if(onlinePlayer.getTabList().containsEntry(player.getUniqueId())) {
+                onlinePlayer.getTabList().removeEntry(player.getUniqueId());
+            }
+            onlinePlayer.getTabList().addEntry(TabListEntry.builder()
+                    .displayName(Component.text(DisplayName.of(player)))
+                    .profile(player.getGameProfile())
+                    .gameMode(0) // Impossible to get player game mode from proxy, always assume survival
+                    .tabList(player.getTabList())
+                    .latency((int)player.getPing())
+                    .build());
+
+        }
     }
 
-    @Subscribe
-    public void disconnect(DisconnectEvent event) {
-        update();
+    public void removePlayer(Player player) {
+        for(Player onlinePlayer : this.proxyServer.getAllPlayers()) {
+            onlinePlayer.getTabList().removeEntry(player.getUniqueId());
+        }
     }
 
     public void update() {
-        for (Player player : this.proxyServer.getAllPlayers()) {
-            for (Player player1 : this.proxyServer.getAllPlayers()) {
-                if (!player.getTabList().containsEntry(player1.getUniqueId())) {
-                    player.getTabList().addEntry(
-                            TabListEntry.builder()
-                                    .displayName(Component.text(player1.getUsername()))
-                                    .profile(player1.getGameProfile())
-                                    .gameMode(0) // Impossible to get player game mode from proxy, always assume survival
-                                    .tabList(player.getTabList())
-                                    .build()
-                    );
-                }
+        CompletableFuture.runAsync(() -> {
+            for(Player player : proxyServer.getAllPlayers()) {
+                updatePlayer(player);
             }
-
-            for (TabListEntry entry : player.getTabList().getEntries()) {
-                UUID uuid = entry.getProfile().getId();
-                Optional<Player> playerOptional = proxyServer.getPlayer(uuid);
-                if (playerOptional.isPresent()) {
-                    // Update ping
-                    entry.setLatency((int) (player.getPing() * 1000));
-                } else {
-                    player.getTabList().removeEntry(uuid);
-                }
-            }
-        }
+        });
     }
 }

@@ -4,16 +4,25 @@
 
 # Global tablist
 [global-tablist]
-    enabled=false
+    enabled=true
 
 [tablist-header-footer]
-    enabled=false
+    update_ms=1000 # updates every 1000 milliseconds
+    enabled=true
     # If you are unsure how to hanle new lines, take a look at https://toml.io/en/ or just use \n
     header="""
-        <white><red>Example<red> Network</white>
+        &cExample Network
 
-        <white>Line 3!</white>"""
-    footer="<light_purple>have fun!</light_purple>"
+        &aLine 3!"""
+    footer="&dhave fun!"
 
 [developer-info]
     config-version=0.1
+
+[join-message]
+    use = true
+    format = "#displayname# &ejoined"
+
+[leave-message]
+    use = true
+    format = "#displayname# &eleft"

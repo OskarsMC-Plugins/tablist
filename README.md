@@ -2,28 +2,35 @@
 
 <a href="https://bstats.org/plugin/velocity/send/11443"><img src="https://img.shields.io/bstats/servers/11443?color=green&style=for-the-badge"></a>
 
-Tablist Plugin for velocity
+Tablist Plugin for velocity - Prefix and Suffix fork, Heron4gf
+
+# Features
+* Tablist header and footer
+* Global tablist
+* Playername prefix and suffix from LuckPermsVelocity
+
 # Configuration
 ```toml
 # tablist
 [plugin]
-    enabled=true
+enabled=true
 
 # Global tablist
 [global-tablist]
-    enabled=false
+enabled=true
 
 [tablist-header-footer]
-    enabled=false
-    # If you are unsure how to hanle new lines, take a look at https://toml.io/en/ or just use \n
-    header="""
-        <white><red>Example<red> Network</white>
+update_ms=1000 # updates every 1000 milliseconds
+enabled=true
+# If you are unsure how to hanle new lines, take a look at https://toml.io/en/ or just use \n
+header="""
+        &cExample Network
 
-        <white>Line 3!</white>"""
-    footer="<light_purple>have fun!</light_purple>"
+        &aLine 3!"""
+footer="&dhave fun!"
 
 [developer-info]
-    config-version=0.1
+config-version=0.1
 ```
 All options are disabled by default.
 

@@ -52,7 +52,6 @@ public class TabSettings {
             throw new RuntimeException(e);
         }
     }
-
     private File getConfigFile() {
         return new File(dataFolder, "config.toml");
     }
